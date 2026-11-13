@@ -43,6 +43,11 @@ resource "aws_lightsail_instance" "api" {
 resource "aws_lightsail_static_ip_attachment" "api" {
   static_ip_name = aws_lightsail_static_ip.api.name
   instance_name  = aws_lightsail_instance.api.name
+
+  # A replaced instance keeps its name, so without this the address would stay detached.
+  lifecycle {
+    replace_triggered_by = [aws_lightsail_instance.api]
+  }
 }
 
 resource "aws_lightsail_instance_public_ports" "api" {
