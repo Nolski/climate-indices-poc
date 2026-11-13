@@ -187,7 +187,7 @@ if (unused.length) info(unused.length + ' keys are not referenced by a literal (
 else ok('no unused translation keys');
 const brand = enKeys.filter((k) => /\bWMO\b|Climpact|UNSW/i.test(en[k]) && !['footer.disclaimer', 'about.p1', 'load.format.p2'].includes(k));
 check(brand.length === 0 && !/WMO|Climpact|UNSW/i.test(en['app.title']), 'product name and interface text carry no WMO / Climpact / UNSW branding (only the disclaimer, the About text and the file-format note mention them)', brand.join(', '));
-check(en['footer.disclaimer'] === 'Independent proof of concept. Not affiliated with or endorsed by WMO or the Climpact maintainers.', 'footer carries the disclaimer from the brief, word for word');
+check(en['footer.disclaimer'] === 'Independent proof of concept. Not affiliated with or endorsed by WMO or the Climpact maintainers.', 'footer carries the independence disclaimer, word for word');
 const PRIVACY = 'Your data stays in memory on the server for 60 minutes and is never written to disk.';
 check(en['load.privacy'].replace('{minutes}', '60') === PRIVACY && norm(byId.get('privacy-text').text) === PRIVACY, 'privacy statement is present, word for word (the 60 is replaced only if the server reports another retention time)');
 check(norm(byId.get('file-limit').text) === en['load.file.limit'].replace('{n}', '20'), 'upload limit text in index.html matches en.json with the default of 20 MB');

@@ -217,7 +217,7 @@ runs; `check.sh` fails if the two copies differ.
 
 ## Why no chart library
 
-The brief suggested uPlot. It draws on a canvas, which rules out the required SVG download, so
+uPlot was the first candidate. It draws on a canvas, which rules out the SVG download, so
 an SVG renderer had to be written in any case. Using that one renderer for the screen as well
 means the downloaded chart is the chart on screen; it is themed by CSS (dark mode with no
 re-draw); its output is a string, so it is unit-tested and was rasterised from the command line
