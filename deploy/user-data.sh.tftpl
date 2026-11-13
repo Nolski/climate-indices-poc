@@ -1,3 +1,7 @@
+#!/bin/sh
+# Lightsail runs user data inside its own /bin/sh script, so this part must be plain sh.
+# It writes the real setup script to a file and runs that with bash.
+cat > /root/climpoc-setup.sh <<'CLIMPOC_SETUP'
 #!/bin/bash
 # First-boot setup for the demo API server. Runs once as root (cloud-init user data).
 # Log: /var/log/climpoc-setup.log
@@ -87,3 +91,6 @@ systemctl enable climpoc.service
 /usr/local/bin/climpoc-deploy
 systemctl restart caddy
 echo "setup complete"
+CLIMPOC_SETUP
+chmod 700 /root/climpoc-setup.sh
+bash /root/climpoc-setup.sh
