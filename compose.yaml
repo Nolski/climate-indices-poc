@@ -1,0 +1,21 @@
+# docker compose up --build      or      podman compose up --build
+# Then open http://localhost:8000
+services:
+  climpoc:
+    build: .
+    image: climpoc:0.1.0
+    ports:
+      - "127.0.0.1:8000:8000"
+    read_only: true          # the application writes nothing; uploads stay in memory
+    tmpfs:
+      - /tmp                 # compiled-code cache of numba only
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3

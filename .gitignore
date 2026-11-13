@@ -1,0 +1,42 @@
+# Environments, caches and build artefacts
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+node_modules/
+.DS_Store
+
+# Internal working brief (local paths, working notes): not for publication
+docs/BUILD_BRIEF.md
+
+# The upstream Climpact checkout (R source, sample data) is fetched, never tracked
+baseline/upstream/
+
+# Logs and plots of the R runs; the numeric outputs next to them are tracked
+baseline/logs/
+baseline/output/logs/
+baseline/output/*/plots/
+baseline/variants/*/output/logs/
+baseline/variants/*/output/container.log
+baseline/variants/*/output/*/plots/
+
+# Second sample station of the R tool's batch example: byte-identical to the first
+baseline/output/sydney_observatory_hill_batch_file_2/
+
+# Variant station files are derived from the sample data; baseline/make_variants.py recreates them
+baseline/variants/*/input/
+
+# Terraform: state files hold account details and can hold secrets; providers are large downloads
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log

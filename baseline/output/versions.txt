@@ -1,0 +1,153 @@
+R: R version 4.5.3 (2026-03-11) 
+Platform: x86_64-pc-linux-gnu 
+OS: Ubuntu 24.04.5 LTS 
+CRAN repo: https://p3m.dev/cran/__linux__/noble/2026-04-23 
+climdex.pcic GitHub commit: 011cb7828dfef1722d64e2fc207d2d9975280378 
+
+Packages used by the batch code path (and their notable dependencies):
+  climdex.pcic   1.2-0
+  PCICt          0.5-5.0
+  Rcpp           1.1.1-1
+  SPEI           1.8.1
+  lmomco         2.5.5
+  zyp            0.11-1
+  Kendall        2.2.2
+  zoo            1.8-15
+  foreach        1.5.2
+  iterators      1.0.14
+  doParallel     1.0.17
+  doSNOW         1.0.20
+  snow           0.4-4
+  qpdf           1.4.1
+  lmom           3.3
+  TLMoments      0.7.5.3
+  goftest        1.2-3
+  MASS           7.3-65
+  boot           1.3-32
+  lubridate      1.9.5
+  ggplot2        4.0.3
+  reshape        0.8.10
+
+All installed packages:
+Package	Version	Priority
+askpass	1.2.1	NA
+backports	1.5.1	NA
+base	4.5.3	base
+boot	1.3-32	recommended
+checkmate	2.3.4	NA
+class	7.3-23	recommended
+cli	3.6.6	NA
+climdex.pcic	1.2-0	NA
+cluster	2.1.8.2	recommended
+codetools	0.2-20	recommended
+compiler	4.5.3	base
+contfrac	1.1-12	NA
+cpp11	0.5.4	NA
+curl	7.1.0	NA
+datasets	4.5.3	base
+deSolve	1.42	NA
+docopt	0.7.2	NA
+doParallel	1.0.17	NA
+doSNOW	1.0.20	NA
+elliptic	1.5-1	NA
+farver	2.1.2	NA
+foreach	1.5.2	NA
+foreign	0.8-91	recommended
+generics	0.1.4	NA
+ggplot2	4.0.3	NA
+glue	1.8.1	NA
+goftest	1.2-3	NA
+graphics	4.5.3	base
+grDevices	4.5.3	base
+grid	4.5.3	base
+gtable	0.3.6	NA
+hypergeo	1.2-14	NA
+isoband	0.3.0	NA
+iterators	1.0.14	NA
+Kendall	2.2.2	NA
+KernSmooth	2.23-26	recommended
+labeling	0.4.3	NA
+lattice	0.22-9	recommended
+lifecycle	1.0.5	NA
+littler	0.3.23	NA
+lmom	3.3	NA
+lmomco	2.5.5	NA
+Lmoments	1.3-2	NA
+lubridate	1.9.5	NA
+MASS	7.3-65	recommended
+Matrix	1.7-4	recommended
+methods	4.5.3	base
+mgcv	1.9-4	recommended
+nlme	3.1-168	recommended
+nnet	7.3-20	recommended
+parallel	4.5.3	base
+PCICt	0.5-5.0	NA
+plyr	1.8.9	NA
+qpdf	1.4.1	NA
+R6	2.6.1	NA
+RColorBrewer	1.1-3	NA
+Rcpp	1.1.1-1	NA
+RcppArmadillo	15.2.6-1	NA
+reshape	0.8.10	NA
+rlang	1.2.0	NA
+rpart	4.1.24	recommended
+S7	0.2.2	NA
+scales	1.4.0	NA
+snow	0.4-4	NA
+spatial	7.3-18	recommended
+SPEI	1.8.1	NA
+splines	4.5.3	base
+stats	4.5.3	base
+stats4	4.5.3	base
+survival	3.8-6	recommended
+sys	3.4.3	NA
+tcltk	4.5.3	base
+timechange	0.4.0	NA
+TLMoments	0.7.5.3	NA
+tools	4.5.3	base
+utils	4.5.3	base
+vctrs	0.7.3	NA
+viridisLite	0.4.3	NA
+withr	3.0.2	NA
+zoo	1.8-15	NA
+zyp	0.11-1	NA
+
+sessionInfo() after loading what climpact.batch.stations.r loads:
+R version 4.5.3 (2026-03-11)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 24.04.5 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] lmomco_2.5.5       SPEI_1.8.1         qpdf_1.4.1         zyp_0.11-1        
+ [5] Kendall_2.2.2      zoo_1.8-15         doParallel_1.0.17  climdex.pcic_1.2-0
+ [9] PCICt_0.5-5.0      doSNOW_1.0.20      snow_0.4-4         iterators_1.0.14  
+[13] foreach_1.5.2     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       compiler_4.5.3     Rcpp_1.1.1-1       scales_1.4.0      
+ [5] boot_1.3-32        lattice_0.22-9     plyr_1.8.9         ggplot2_4.0.3     
+ [9] R6_2.6.1           Lmoments_1.3-2     TLMoments_0.7.5.3  generics_0.1.4    
+[13] MASS_7.3-65        backports_1.5.1    checkmate_2.3.4    lubridate_1.9.5   
+[17] RColorBrewer_1.1-3 rlang_1.2.0        reshape_0.8.10     S7_0.2.2          
+[21] timechange_0.4.0   cli_3.6.6          grid_4.5.3         askpass_1.2.1     
+[25] lifecycle_1.0.5    vctrs_0.7.3        glue_1.8.1         farver_2.1.2      
+[29] codetools_0.2-20   goftest_1.2-3      lmom_3.3           tools_4.5.3       

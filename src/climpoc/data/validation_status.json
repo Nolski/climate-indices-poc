@@ -1,0 +1,179 @@
+{
+ "cdd": {
+  "annual": "exact"
+ },
+ "cddcold18": {
+  "annual": "exact"
+ },
+ "csdi": {
+  "annual": "exact"
+ },
+ "csdi3": {
+  "annual": "exact"
+ },
+ "cwd": {
+  "annual": "exact"
+ },
+ "dtr": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "fd": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "gddgrow10": {
+  "annual": "exact"
+ },
+ "gsl": {
+  "annual": "differs"
+ },
+ "hddheat18": {
+  "annual": "exact"
+ },
+ "id": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "prcptot": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "r10mm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "r20mm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "r30mm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "r95p": {
+  "annual": "exact"
+ },
+ "r95ptot": {
+  "annual": "exact"
+ },
+ "r99p": {
+  "annual": "exact"
+ },
+ "r99ptot": {
+  "annual": "exact"
+ },
+ "rx1day": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "rx3day": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "rx5day": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "sdii": {
+  "annual": "exact"
+ },
+ "su": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tmge10": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tmge5": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tmlt10": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tmlt5": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tmm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tn10p": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tn90p": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnlt2": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnltm2": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnltm20": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnn": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tnx": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tr": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tx10p": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "tx90p": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txge30": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txge35": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txgt50p": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txm": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txn": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "txx": {
+  "annual": "exact",
+  "monthly": "exact"
+ },
+ "wsdi": {
+  "annual": "exact"
+ },
+ "wsdi3": {
+  "annual": "exact"
+ }
+}

@@ -1,0 +1,89 @@
+#!/bin/bash
+# First-boot setup for the demo API server. Runs once as root (cloud-init user data).
+# Log: /var/log/climpoc-setup.log
+set -euxo pipefail
+exec > >(tee -a /var/log/climpoc-setup.log) 2>&1
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y --no-install-recommends podman caddy git ca-certificates
+
+# The image build is memory-hungry for a 2 GB machine; give it swap.
+if [ ! -f /swapfile ]; then
+  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
+install -d -m 0755 /opt/climpoc
+cat > /opt/climpoc/env <<'ENV'
+CLIMPOC_CORS_ORIGINS=${cors_origins}
+CLIMPOC_MAX_DATASETS=${max_datasets}
+CLIMPOC_MAX_UPLOAD_MB=${max_upload_mb}
+CLIMPOC_DATASET_TTL_MINUTES=30
+CLIMPOC_RATE_LIMIT_PER_MINUTE=60
+CLIMPOC_TRUST_PROXY=1
+ENV
+
+# Build-and-run script: also used for updates (run it again to deploy the latest commit).
+cat > /usr/local/bin/climpoc-deploy <<'DEPLOY'
+#!/bin/bash
+set -euo pipefail
+cd /opt/climpoc
+if [ ! -d src/.git ]; then
+  git clone --depth 1 --branch "${git_ref}" "${repo_url}" src
+else
+  git -C src fetch --depth 1 origin "${git_ref}" && git -C src reset --hard FETCH_HEAD
+fi
+rev=$(git -C src rev-parse --short HEAD)
+podman build -t "climpoc:$rev" -t climpoc:current src
+systemctl restart climpoc.service
+echo "deployed $rev"
+DEPLOY
+chmod 0755 /usr/local/bin/climpoc-deploy
+
+cat > /etc/systemd/system/climpoc.service <<'UNIT'
+[Unit]
+Description=Climate indices proof of concept (API)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=5
+ExecStartPre=-/usr/bin/podman rm -f climpoc
+ExecStart=/usr/bin/podman run --name climpoc --rm \
+  --publish 127.0.0.1:8000:8000 \
+  --env-file /opt/climpoc/env \
+  --read-only --tmpfs /tmp \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --memory ${memory_limit} --pids-limit 256 \
+  climpoc:current
+ExecStop=/usr/bin/podman stop -t 10 climpoc
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+cat > /etc/caddy/Caddyfile <<'CADDY'
+${api_host} {
+	encode zstd gzip
+	request_body {
+		max_size ${max_upload_mb + 1}MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Robots-Tag "noindex"
+		-Server
+	}
+	reverse_proxy 127.0.0.1:8000 {
+		header_up X-Forwarded-For {remote_host}
+	}
+}
+CADDY
+
+systemctl daemon-reload
+systemctl enable climpoc.service
+/usr/local/bin/climpoc-deploy
+systemctl restart caddy
+echo "setup complete"

@@ -1,0 +1,24 @@
+{
+ "name": "cold",
+ "description": "tmax and tmin lowered by 15 degC: frost, ice and cold-threshold indices are non-zero",
+ "station": "sydney_cold",
+ "rows": 29220,
+ "first_day": "1936-01-01",
+ "last_day": "2015-12-31",
+ "base_start": 1971,
+ "base_end": 2000,
+ "metadata": {
+  "latitude": -10,
+  "longitude": 100,
+  "wsdin": 3,
+  "csdin": 3,
+  "Tb_HDD": 18,
+  "Tb_CDD": 18,
+  "Tb_GDD": 10,
+  "rxnday": 3,
+  "rnnmm": 30,
+  "txtn": 2,
+  "SPEI": 24
+ },
+ "r_command": "Rscript climpact.batch.stations.r <stations>/ <variant>/metadata.txt 1971 2000 2"
+}

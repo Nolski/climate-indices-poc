@@ -1,0 +1,24 @@
+{
+ "name": "params",
+ "description": "Same data, non-default user parameters",
+ "station": "sydney_params",
+ "rows": 29220,
+ "first_day": "1936-01-01",
+ "last_day": "2015-12-31",
+ "base_start": 1971,
+ "base_end": 2000,
+ "metadata": {
+  "latitude": -10,
+  "longitude": 100,
+  "wsdin": 5,
+  "csdin": 5,
+  "Tb_HDD": 15,
+  "Tb_CDD": 22,
+  "Tb_GDD": 5,
+  "rxnday": 7,
+  "rnnmm": 25,
+  "txtn": 3,
+  "SPEI": 9
+ },
+ "r_command": "Rscript climpact.batch.stations.r <stations>/ <variant>/metadata.txt 1971 2000 2"
+}

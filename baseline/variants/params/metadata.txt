@@ -1,0 +1,2 @@
+station_file	latitude	longitude	wsdin	csdin	Tb_HDD	Tb_CDD	Tb_GDD	rxnday	rnnmm	txtn	SPEI
+sydney_params.txt	-10	100	5	5	15	22	5	7	25	3	9

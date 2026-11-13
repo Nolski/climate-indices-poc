@@ -1,0 +1,2 @@
+station_file	latitude	longitude	wsdin	csdin	Tb_HDD	Tb_CDD	Tb_GDD	rxnday	rnnmm	txtn	SPEI
+sydney_north.txt	40	100	3	3	18	18	10	3	30	2	24

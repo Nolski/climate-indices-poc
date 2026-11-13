@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="no-referrer">
+<title>Climate indices: proof of concept</title>
+<meta name="description" content="Load a station file of daily rainfall and temperature, check its quality, calculate climate indices and download the results.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/app.css">
+<link rel="preload" href="i18n/en.json" as="fetch" crossorigin>
+<link rel="modulepreload" href="config.js">
+<link rel="modulepreload" href="js/main.js">
+<link rel="modulepreload" href="js/api.js">
+<link rel="modulepreload" href="js/i18n.js">
+<link rel="modulepreload" href="js/format.js">
+<link rel="modulepreload" href="js/shape.js">
+<link rel="modulepreload" href="js/store.js">
+<link rel="modulepreload" href="js/dom.js">
+<link rel="modulepreload" href="js/chart.js">
+<link rel="modulepreload" href="js/view-load.js">
+<link rel="modulepreload" href="js/view-qc.js">
+<link rel="modulepreload" href="js/view-indices.js">
+<link rel="modulepreload" href="js/view-results.js">
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3.5l9.5 17h-19zM12 10v5M12 17.6v.4"/></symbol>
+  <symbol id="i-error" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.4v.4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M5 19h14"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM14 3v4h4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.5-5.4M19 4v4h-4"/></symbol>
+  <symbol id="i-spinner" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M4 14.5h16M10 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19h16M5 15l4-5 4 3 6-8"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="i-badge" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9.5-4.1-1.900-7-5.3-7-9.5V6zM8.8 12.2l2.3 2.3 4.2-4.4"/></symbol>
+</svg>
+
+<a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <h1 class="product" data-i18n="app.title">Climate indices: proof of concept</h1>
+    <div class="header-tools">
+      <p id="conn" class="conn conn-unknown" role="status">
+        <svg class="icon" aria-hidden="true" focusable="false"><use id="conn-icon" href="#i-info"/></svg>
+        <span id="conn-text">Checking the connection</span>
+      </p>
+      <div class="lang">
+        <label for="lang-select" data-i18n="lang.label">Language</label>
+        <select id="lang-select" autocomplete="off">
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="stepper-bar" aria-label="Steps" data-i18n-attr="aria-label:steps.label">
+  <div class="wrap">
+    <ol id="stepper" class="stepper">
+      <li><button type="button" class="step-btn" data-step="1" aria-current="step"><span class="step-num" aria-hidden="true">1</span><span class="step-text"><span class="step-name" data-i18n="steps.1">Load data</span><span class="step-state" id="step-state-1"></span></span></button></li>
+      <li><button type="button" class="step-btn" data-step="2" aria-disabled="true"><span class="step-num" aria-hidden="true">2</span><span class="step-text"><span class="step-name" data-i18n="steps.2">Quality control</span><span class="step-state" id="step-state-2"></span></span></button></li>
+      <li><button type="button" class="step-btn" data-step="3" aria-disabled="true"><span class="step-num" aria-hidden="true">3</span><span class="step-text"><span class="step-name" data-i18n="steps.3">Choose indices</span><span class="step-state" id="step-state-3"></span></span></button></li>
+      <li><button type="button" class="step-btn" data-step="4" aria-disabled="true"><span class="step-num" aria-hidden="true">4</span><span class="step-text"><span class="step-name" data-i18n="steps.4">Results</span><span class="step-state" id="step-state-4"></span></span></button></li>
+    </ol>
+    <p id="demo-tag" class="demo-tag" hidden></p>
+  </div>
+</nav>
+
+<div class="wrap notices">
+  <noscript><p class="notice notice-error">This tool needs JavaScript. Please turn it on in your browser settings and reload the page.</p></noscript>
+  <p id="notice-boot" class="notice notice-error" role="alert" hidden></p>
+  <div id="notice-demo" class="notice notice-info" role="status" hidden></div>
+  <p id="notice-draft" class="notice notice-info" hidden data-i18n="notice.draft">This translation was drafted by machine and has not yet been reviewed by a native speaker.</p>
+  <div id="notice-session" class="notice notice-info" role="status" hidden></div>
+  <div id="notice-expired" class="notice notice-warning" role="alert" hidden></div>
+</div>
+<div id="live" class="visually-hidden" role="status" aria-live="polite"></div>
+
+<main id="main" class="wrap" tabindex="-1">
+
+<!-- Step 1 -->
+<section id="step-1" class="step" aria-labelledby="h-step-1">
+  <h2 id="h-step-1" tabindex="-1"><span class="h-num" aria-hidden="true">1</span> <span data-i18n="load.heading">Load data</span></h2>
+  <p class="lead" data-i18n="load.lead">Load one station's daily rainfall and minimum and maximum temperature. The file is checked, then you choose which climate indices to calculate.</p>
+
+  <div id="loaded-box" class="card loaded" hidden></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 data-i18n="load.file.heading">Station file</h3>
+      <div id="drop" class="drop">
+        <svg class="icon icon-lg" aria-hidden="true" focusable="false"><use href="#i-upload"/></svg>
+        <p class="drop-text" data-i18n="load.file.drop">Drop a station text file here, or</p>
+        <button type="button" id="btn-choose" class="btn" data-i18n="load.file.choose">Choose a file</button>
+        <input type="file" id="file-input" accept=".txt,.csv,.dat,.tsv,text/plain,text/csv" hidden aria-label="Station file" data-i18n-attr="aria-label:load.file.heading">
+        <p class="hint" id="file-limit">Plain text, up to 20 MB.</p>
+      </div>
+      <p id="upload-demo" class="notice notice-info" hidden></p>
+      <div id="file-info" class="file-info" hidden></div>
+      <div class="actions">
+        <button type="button" id="btn-upload" class="btn btn-primary btn-large" disabled>
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-upload"/></svg>
+          <span id="btn-upload-text" data-i18n="load.upload">Upload and check the file</span>
+        </button>
+        <p class="hint" id="upload-hint" data-i18n="load.upload.hint">Choose a file first, or try the sample station.</p>
+      </div>
+      <progress id="upload-progress" class="progress" max="100" value="0" hidden aria-label="Upload progress" data-i18n-attr="aria-label:load.progress.label"></progress>
+      <div id="upload-status" class="status" hidden></div>
+
+      <details class="help">
+        <summary data-i18n="load.format.summary">What the file should look like</summary>
+        <p data-i18n="load.format.p1">A plain text file with one line per day and six values on each line, separated by spaces, tabs or commas:</p>
+        <p class="format-cols" data-i18n="load.format.cols">year, month, day, rainfall (mm), maximum temperature (°C), minimum temperature (°C)</p>
+<pre class="example" aria-label="Example file" data-i18n-attr="aria-label:load.format.exampleLabel">1936  1  1    0.0   23.7   18.4
+1936  1  2    1.5   24.1   17.9
+1936  1  3  -99.9   25.0   18.2
+1936  1  4    0.0  -99.9  -99.9
+1936  1  5   12.2   22.8   17.1</pre>
+        <p data-i18n="load.format.p2">Every day needs a line, in date order: write -99.9 where a value is missing. A header line is ignored. This is the same layout used by RClimDex and Climpact station files.</p>
+      </details>
+
+      <p class="or" data-i18n="load.or">or</p>
+      <button type="button" id="btn-sample" class="btn btn-accent btn-wide">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chart"/></svg>
+        <span data-i18n="load.sample">Try the sample station</span>
+      </button>
+      <p class="hint" id="sample-hint" data-i18n="load.sample.hint">Loads 80 years of daily data (1936 to 2015) that is already on the server. Nothing is uploaded.</p>
+    </div>
+
+    <form id="settings-form" class="card" novalidate>
+      <h3 data-i18n="load.settings.heading">Station details</h3>
+      <p id="settings-demo" class="hint" hidden></p>
+      <div class="field">
+        <label for="f-name" data-i18n="load.name.label">Station name</label>
+        <input type="text" id="f-name" name="name" maxlength="80" autocomplete="off" aria-describedby="f-name-help">
+        <p class="hint" id="f-name-help" data-i18n="load.name.help">Used to label charts and downloaded files. If left empty, the file name is used.</p>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-lat" data-i18n="load.lat.label">Latitude (degrees)</label>
+          <input type="number" id="f-lat" name="latitude" min="-90" max="90" step="any" inputmode="decimal" autocomplete="off" aria-describedby="f-lat-help f-lat-err">
+          <p class="field-error" id="f-lat-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-lon" data-i18n="load.lon.label">Longitude (degrees)</label>
+          <input type="number" id="f-lon" name="longitude" min="-180" max="180" step="any" inputmode="decimal" autocomplete="off" aria-describedby="f-lon-err">
+          <p class="field-error" id="f-lon-err" hidden></p>
+        </div>
+      </div>
+      <p class="hint" id="f-lat-help" data-i18n="load.lat.help">Latitude tells the tool which hemisphere the station is in, which changes how seasonal indices such as growing season length are calculated. Use negative numbers for south and for west.</p>
+      <fieldset class="fieldset-plain">
+        <legend data-i18n="load.base.legend">Base period</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="f-base-start" data-i18n="load.base.start">First year</label>
+            <input type="number" id="f-base-start" name="base_start" min="1700" max="2100" step="1" value="1971" inputmode="numeric" autocomplete="off" aria-describedby="f-base-help f-base-err">
+          </div>
+          <div class="field">
+            <label for="f-base-end" data-i18n="load.base.end">Last year</label>
+            <input type="number" id="f-base-end" name="base_end" min="1700" max="2100" step="1" value="2000" inputmode="numeric" autocomplete="off" aria-describedby="f-base-help f-base-err">
+          </div>
+        </div>
+        <p class="field-error" id="f-base-err" hidden></p>
+        <p class="hint" id="f-base-help" data-i18n="load.base.help">The base period is the span of years that defines what is normal for this station. Percentile indices, such as warm days (TX90p), compare every day with it. Choose 30 years with good data; 1971 to 2000 is the default.</p>
+      </fieldset>
+    </form>
+  </div>
+
+  <p class="privacy">
+    <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg>
+    <span id="privacy-text">Your data stays in memory on the server for 60 minutes and is never written to disk.</span>
+  </p>
+</section>
+
+<!-- Step 2 -->
+<section id="step-2" class="step" aria-labelledby="h-step-2" hidden>
+  <h2 id="h-step-2" tabindex="-1"><span class="h-num" aria-hidden="true">2</span> <span data-i18n="qc.heading">Quality control</span></h2>
+  <p class="lead" id="qc-lead"></p>
+  <div id="qc-verdict" class="verdict"></div>
+  <div id="qc-tiles" class="tiles"></div>
+  <div id="qc-notes" class="notice notice-info" hidden></div>
+
+  <div class="card">
+    <h3 data-i18n="qc.strip.heading">Missing days in each year</h3>
+    <p class="hint" data-i18n="qc.strip.help">One column per year, one row per variable. Darker cells have more missing days; taller cells are years over the limit used for annual indices.</p>
+    <div id="qc-strip" class="strip-wrap"></div>
+    <details class="help">
+      <summary data-i18n="qc.strip.table">Show the years with missing days as a table</summary>
+      <div id="qc-strip-table" class="table-scroll" tabindex="0" role="region" aria-label="Missing days by year" data-i18n-attr="aria-label:qc.strip.tableLabel"></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="qc.checks.heading">Checks</h3>
+    <p class="hint" data-i18n="qc.checks.help">Open a check to see the records it flagged. Nothing is removed or changed: flagged values are still used unless you correct the file and load it again.</p>
+    <div id="qc-checks" class="checks"></div>
+    <details class="help" id="qc-thresholds" hidden>
+      <summary data-i18n="qc.thresholds.summary">Change the thresholds and run the checks again</summary>
+      <p class="hint" data-i18n="qc.thresholds.help">The checks compare each day with these limits. Change a limit if it does not suit your climate, for example a higher rainfall limit for a cyclone-prone station. The data is not sent again.</p>
+      <form id="qc-thresholds-form" novalidate>
+        <div id="qc-thresholds-fields" class="threshold-grid"></div>
+        <div class="actions">
+          <button type="submit" id="btn-qc-rerun" class="btn btn-primary" data-i18n="qc.thresholds.run">Run the checks again</button>
+          <button type="button" id="btn-qc-defaults" class="btn" data-i18n="qc.thresholds.defaults">Restore the default limits</button>
+        </div>
+      </form>
+      <div id="qc-thresholds-status" class="status" hidden></div>
+    </details>
+    <p class="hint" data-i18n="qc.rerun">To check again with a different base period or location, go back to step 1, change the values and choose "Apply changes". The file does not need to be chosen again.</p>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="qc.daily.heading">Daily values</h3>
+    <p class="hint" data-i18n="qc.daily.help">Plot every day of the record for one variable, with flagged values marked. The daily data is only downloaded when you ask for it.</p>
+    <div class="toolbar">
+      <div class="field field-inline">
+        <label for="daily-variable" data-i18n="qc.daily.variable">Variable</label>
+        <select id="daily-variable" autocomplete="off"></select>
+      </div>
+      <button type="button" id="btn-daily-load" class="btn">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chart"/></svg>
+        <span data-i18n="qc.daily.load">Show the daily chart</span>
+      </button>
+    </div>
+    <div id="daily-status" class="status" hidden></div>
+    <div id="daily-panel" hidden>
+      <div class="toolbar" role="group" aria-label="Chart zoom" data-i18n-attr="aria-label:qc.daily.zoomLabel">
+        <button type="button" class="btn btn-small" id="btn-zoom-in"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg><span data-i18n="qc.daily.zoomIn">Zoom in</span></button>
+        <button type="button" class="btn btn-small" id="btn-zoom-out"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-minus"/></svg><span data-i18n="qc.daily.zoomOut">Zoom out</span></button>
+        <button type="button" class="btn btn-small" id="btn-pan-left"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-left"/></svg><span data-i18n="qc.daily.earlier">Earlier</span></button>
+        <button type="button" class="btn btn-small" id="btn-pan-right"><span data-i18n="qc.daily.later">Later</span><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button>
+        <button type="button" class="btn btn-small" id="btn-zoom-reset" data-i18n="qc.daily.reset">Whole record</button>
+      </div>
+      <p id="daily-range" class="hint"></p>
+      <div id="daily-chart" class="chart chart-zoom" tabindex="0" role="group" aria-label="Daily values chart" data-i18n-attr="aria-label:qc.daily.chartLabel" aria-describedby="daily-keys"></div>
+      <p id="daily-readout" class="readout" aria-live="polite"></p>
+      <p id="daily-keys" class="hint" data-i18n="qc.daily.keys">Drag across the chart to zoom into a period; double-click to return to the whole record. With the keyboard: focus the chart and use the left and right arrow keys to read values, and the buttons above to zoom.</p>
+    </div>
+  </div>
+
+  <div class="actions actions-split">
+    <button type="button" class="btn" data-go="1"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-left"/></svg><span data-i18n="nav.back.load">Back to load data</span></button>
+    <button type="button" id="btn-to-indices" class="btn btn-primary btn-large" data-go="3"><span id="btn-to-indices-text" data-i18n="qc.continue">Continue to choose indices</span><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button>
+  </div>
+</section>
+
+<!-- Step 3 -->
+<section id="step-3" class="step" aria-labelledby="h-step-3" hidden>
+  <h2 id="h-step-3" tabindex="-1"><span class="h-num" aria-hidden="true">3</span> <span data-i18n="indices.heading">Choose indices</span></h2>
+  <p class="lead" data-i18n="indices.lead">Tick the climate indices to calculate. Each one turns the daily record into one value per year or per month.</p>
+
+  <div class="card">
+    <fieldset class="fieldset-plain">
+      <legend data-i18n="indices.frequency.legend">Calculate one value per</legend>
+      <div class="segmented">
+        <label class="seg"><input type="radio" name="frequency" id="freq-annual" value="annual" checked> <span data-i18n="indices.frequency.annual">Year</span></label>
+        <label class="seg"><input type="radio" name="frequency" id="freq-monthly" value="monthly"> <span data-i18n="indices.frequency.monthly">Month</span></label>
+      </div>
+    </fieldset>
+    <div class="toolbar">
+      <button type="button" id="btn-select-all" class="btn btn-small" data-i18n="indices.selectAll">Select all available</button>
+      <button type="button" id="btn-select-none" class="btn btn-small" data-i18n="indices.selectNone">Clear selection</button>
+      <p id="selection-count" class="count" role="status"></p>
+    </div>
+    <p id="validated-note" class="hint validated-note" hidden></p>
+  </div>
+
+  <div id="indices-status" class="status" hidden></div>
+  <div id="indices-groups" class="groups"></div>
+
+  <div class="sticky-actions">
+    <div id="compute-status" class="status" hidden></div>
+    <div class="actions actions-split">
+      <button type="button" class="btn" data-go="2"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-left"/></svg><span data-i18n="nav.back.qc">Back to quality control</span></button>
+      <button type="button" id="btn-calculate" class="btn btn-primary btn-large"><span id="btn-calculate-text" data-i18n="indices.calculate">Calculate</span><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- Step 4 -->
+<section id="step-4" class="step" aria-labelledby="h-step-4" hidden>
+  <h2 id="h-step-4" tabindex="-1"><span class="h-num" aria-hidden="true">4</span> <span data-i18n="results.heading">Results</span></h2>
+  <p class="lead" id="results-summary"></p>
+  <p id="results-demo" class="notice notice-info" hidden></p>
+
+  <div class="card download-card">
+    <h3 data-i18n="results.download.heading">Download results</h3>
+    <p class="hint" data-i18n="results.download.help">All calculated indices in one file. The ZIP opens in any spreadsheet program; it also contains the quality control findings and a description of the columns and settings.</p>
+    <div class="download-buttons">
+      <button type="button" id="btn-dl-zip" class="btn btn-primary btn-large" data-format="zip">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-download"/></svg>
+        <span><span class="btn-title" data-i18n="results.download.zip">Download results (ZIP of CSV files)</span></span>
+      </button>
+      <button type="button" id="btn-dl-netcdf" class="btn btn-large" data-format="netcdf">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-download"/></svg>
+        <span data-i18n="results.download.netcdf">NetCDF</span>
+      </button>
+      <button type="button" id="btn-dl-json" class="btn btn-large" data-format="json">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-download"/></svg>
+        <span data-i18n="results.download.json">JSON</span>
+      </button>
+    </div>
+    <p id="download-demo" class="hint" hidden></p>
+    <div id="download-status" class="status" hidden></div>
+  </div>
+
+  <div id="results-skipped" class="card" hidden></div>
+
+  <div class="card">
+    <h3 data-i18n="results.settings.heading">Settings used</h3>
+    <p class="hint" data-i18n="results.settings.help">Quote these with the results so that someone else can reproduce them.</p>
+    <dl id="results-settings" class="settings"></dl>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="results.compare.heading">Compare two indices</h3>
+    <div class="toolbar">
+      <div class="field field-inline">
+        <label for="compare-a" data-i18n="results.compare.first">First index</label>
+        <select id="compare-a" autocomplete="off"></select>
+      </div>
+      <div class="field field-inline">
+        <label for="compare-b" data-i18n="results.compare.second">Second index</label>
+        <select id="compare-b" autocomplete="off"></select>
+      </div>
+    </div>
+    <p id="compare-note" class="hint"></p>
+    <div id="compare-chart" class="chart" tabindex="0" role="group" aria-label="Comparison chart" data-i18n-attr="aria-label:results.compare.chartLabel"></div>
+    <p id="compare-readout" class="readout" aria-live="polite"></p>
+  </div>
+
+  <div class="results-head">
+    <h3 id="h-cards" data-i18n="results.cards.heading">Each index</h3>
+    <div class="field field-inline">
+      <label for="results-jump" data-i18n="results.jump">Go to</label>
+      <select id="results-jump" autocomplete="off"></select>
+    </div>
+  </div>
+  <div id="results-cards" class="cards"></div>
+
+  <div class="actions actions-split">
+    <button type="button" class="btn" data-go="3"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-left"/></svg><span data-i18n="nav.back.indices">Back to choose indices</span></button>
+    <button type="button" class="btn" data-go="1" data-i18n="nav.another">Load another station</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="disclaimer" data-i18n="footer.disclaimer">Independent proof of concept. Not affiliated with or endorsed by WMO or the Climpact maintainers.</p>
+    <p id="versions" class="versions"></p>
+    <details class="help">
+      <summary data-i18n="about.summary">About this tool</summary>
+      <p data-i18n="about.p1">This is a small working model that explores what a modern replacement for the Climpact workflow could look like: load a station file, check its quality, calculate climate indices with the open-source xclim library, and download the results.</p>
+      <p data-i18n="about.p2">It is built for slow and unstable connections. The whole page is well under 150 KB when compressed, loads nothing from other websites, repeats a request by itself when the connection drops, and tells you what it is doing while it waits.</p>
+      <p data-i18n="about.p3">Index values are compared with the original R tool for the sample station. The proof of concept covers station data and a selection of indices; it is not a finished product and its results should be checked before use in a published report.</p>
+    </details>
+  </div>
+</footer>
+</body>
+</html>

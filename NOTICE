@@ -1,0 +1,44 @@
+climpoc - a Python and xclim proof of concept for Climpact's station workflow
+Copyright (C) 2026 Mike Nolan
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details. The full text is in the file LICENSE.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Independent proof of concept. Not affiliated with or endorsed by WMO or the Climpact maintainers.
+
+
+DATA AND REFERENCE OUTPUTS FROM CLIMPACT
+
+Climpact (https://github.com/ARCCSS-extremes/climpact) is licensed GPL-3.0. This repository
+contains no Climpact source code. It does use, with thanks, the following material:
+
+* Sample station file. sydney_observatory_hill_1936-2015.txt (daily observations for Sydney
+  Observatory Hill, as distributed with Climpact) is not stored in this repository.
+  scripts/fetch_sample.sh downloads it unmodified from the Climpact repository at a pinned commit.
+  It is the input of the tests, of the validation and of the "sample station" button, and a
+  container image built from this repository contains a copy.
+* Climpact's own reference outputs. The validation also reads the files under
+  tests/output_compare/ of the Climpact repository (from the fetched checkout; not stored here).
+* Reference outputs. The files under baseline/output/ and baseline/variants/*/output/ were
+  produced by running the unmodified Climpact 3.4.4 on that sample file and on variants derived
+  from it (baseline/README.md, baseline/make_variants.py, baseline/run_variants.sh). They are the
+  expected values of the tests and of VALIDATION.md.
+* Demonstration data. web/fixtures/*.json are answers of this software's API for the sample
+  station, so they contain values derived from the sample file, including its daily series.
+  The front end shows them in its demonstration mode.
+
+
+THIRD-PARTY SOFTWARE
+
+Used at run time, each under its own licence, installed as dependencies and not modified:
+xclim (Apache-2.0), xarray (Apache-2.0), pandas (BSD-3-Clause), numpy (BSD-3-Clause), scipy
+(BSD-3-Clause), numba (BSD-2-Clause), FastAPI (MIT), Starlette (BSD-3-Clause), uvicorn
+(BSD-3-Clause), python-multipart (Apache-2.0), brotli-asgi (MIT) and their dependencies as pinned
+in uv.lock. Apache-2.0, BSD and MIT licences are compatible with GPL-3.0.

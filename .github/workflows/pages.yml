@@ -1,0 +1,64 @@
+# Publishes the static front end (web/) to GitHub Pages.
+#
+# The site is static: the Python API runs somewhere else. Set the repository variable
+# API_BASE (Settings -> Secrets and variables -> Actions -> Variables) to the address of the
+# API, for example https://api.example.org (no trailing /api). If the variable is empty or
+# missing, the site is published as a demonstration only, with saved results for the sample
+# station. The API must allow this site's origin in CLIMPOC_CORS_ORIGINS; see
+# docs/pages-hosting.md.
+#
+# One-time setup in the repository: Settings -> Pages -> Source: "GitHub Actions".
+#
+# The actions below are pinned to major versions. Their commit SHAs could not be looked up
+# while this file was written (no network access); before relying on this workflow, replace
+# each "@vN" with the full commit SHA of that release, keeping the version as a comment.
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "scripts/build_pages.sh"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# The minimum needed to deploy to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; let a running one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4 # pin to a commit SHA
+      - name: Configure Pages
+        uses: actions/configure-pages@v5 # pin to a commit SHA
+      - name: Build the static site
+        env:
+          API_BASE: ${{ vars.API_BASE }}
+          API_ALTERNATIVES: ${{ vars.API_ALTERNATIVES }}
+        run: scripts/build_pages.sh
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3 # pin to a commit SHA
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # pin to a commit SHA
